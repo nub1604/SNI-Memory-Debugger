@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+		<PropertyGroup>
+				<OutputType>WinExe</OutputType>
+				<TargetFramework>net8.0</TargetFramework>
+				<ImplicitUsings>enable</ImplicitUsings>
+				<Nullable>enable</Nullable>
+				<RuntimeIdentifiers>win-x64;osx-x64;osx-arm64;linux-x64;linux-arm64</RuntimeIdentifiers>
+				<SelfContained>true</SelfContained>
+				<PublishSingleFile>true</PublishSingleFile>
+				<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+		</PropertyGroup>
+
+		<ItemGroup>
+				<PackageReference Include="Avalonia" Version="12.1.0" />
+				<PackageReference Include="Avalonia.Desktop" Version="12.1.0" />
+				<PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.0" />
+				<PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.0" />
+				<PackageReference Include="Avalonia.Diagnostics" Version="11.3.18" Condition="'$(Configuration)' == 'Debug'" />
+		</ItemGroup>
+
+		<ItemGroup>
+				<PackageReference Include="Google.Protobuf" Version="3.35.1" />
+				<PackageReference Include="Grpc.Net.Client" Version="2.80.0" />
+		</ItemGroup>
+</Project>
