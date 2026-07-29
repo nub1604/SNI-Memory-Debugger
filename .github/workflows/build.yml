@@ -1,0 +1,37 @@
+# .github/workflows/build.yml
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+          - os: ubuntu-latest
+            rid: linux-x64
+          - os: macos-latest
+            rid: osx-arm64
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Publish
+        run: dotnet publish -c Release -r ${{ matrix.rid }} --self-contained -o publish/${{ matrix.rid }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MemoryDebugger-${{ matrix.rid }}
+          path: publish/${{ matrix.rid }}
