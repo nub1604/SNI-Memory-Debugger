@@ -8,6 +8,7 @@
 				<SelfContained>true</SelfContained>
 				<PublishSingleFile>true</PublishSingleFile>
 				<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+				<NoWarn>$(NoWarn);CA1707</NoWarn>
 		</PropertyGroup>
 
 		<ItemGroup>
