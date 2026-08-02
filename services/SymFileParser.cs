@@ -10,7 +10,7 @@ public static class SymFileParser
         var sizes = new Dictionary<string, uint>(StringComparer.Ordinal);
 
         string? section = null;
-
+        string version = "";
         foreach (var rawLine in File.ReadLines(path))
         {
             var line = rawLine.Trim();
@@ -29,18 +29,40 @@ public static class SymFileParser
 
             switch (section)
             {
-                case "labels":
+                case "information":
                 {
-                    if (!uint.TryParse(parts[0], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var addr))
-                        continue;
-
-                    var name = parts[1].Trim();
-                    if (name.StartsWith("__local_", StringComparison.Ordinal))
-                        continue;
-
-                    rawLabels.Add((addr, name));
+                    if (parts[0].Equals("version", StringComparison.OrdinalIgnoreCase))
+                    {
+                        version = parts[1].Trim();
+                        break;
+                    }
+                    // Ignore information section
                     break;
                 }
+
+
+
+                case "labels":
+                {
+                    uint addr;
+                     if (version == "3")
+                    {
+                        var trimmed = parts[0].Remove(2,1);
+                        if (!uint.TryParse(trimmed, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out addr))
+                            continue;
+                    }
+                    else
+                    {
+                        if (!uint.TryParse(parts[0], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out addr))
+                            continue;
+                    }
+                        var name = parts[1].Trim();
+                        if (name.StartsWith("__local_", StringComparison.Ordinal))
+                            continue;
+
+                        rawLabels.Add((addr, name));
+                        break;
+                    }
                 case "definitions":
                 {
                     if (!uint.TryParse(parts[0], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var size))

@@ -42,11 +42,7 @@ public class MainWindow : Window
 
         _searchBox.TextChanged += (_, _) => RefreshResultsList();
         _refreshDevicesButton.Click += RefreshDevicesButton_Click;
-        _deviceCombo.SelectionChanged += (_, _) =>
-        {
-            if (_deviceCombo.SelectedIndex is >= 0 and var idx && idx < _devices.Count)
-                _streamer.DeviceUri = _devices[idx].Uri;
-        };
+        _deviceCombo.SelectionChanged += deviceCombo_SelectionChanged;
 
         var watchHeader = new Grid
         {
@@ -96,7 +92,21 @@ public class MainWindow : Window
         Grid.SetColumn(block, column);
         grid.Children.Add(block);
     }
+    private void deviceCombo_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if(_devices.Count > 0  && _deviceCombo.SelectedIndex >= 0)
+        {
+            _streamer.DeviceUri = _devices[_deviceCombo.SelectedIndex].Uri;
 
+            lock (_watchLock)
+            {
+                foreach (var watched in _watchedLabels)
+                {
+                    watched.ValueText.Text = "…";
+                }
+            }
+        }
+    }
     private async void RefreshDevicesButton_Click(object? sender, RoutedEventArgs e)
         => await RefreshDevicesAsync();
 
@@ -106,11 +116,13 @@ public class MainWindow : Window
         {
             _devices = (await _streamer.ListDevicesAsync()).ToList();
             _deviceCombo.ItemsSource = _devices.Select(d => d.DisplayName).ToList();
-
-            if (_devices.Count > 0 && _deviceCombo.SelectedIndex < 0)
+         
+            if (_devices.Count > 0)
             {
                 _deviceCombo.SelectedIndex = 0;
                 _streamer.DeviceUri = _devices[0].Uri;
+                _watchLoopCts = null;
+                EnsureWatchLoopRunning();
             }
         }
         catch (Exception ex)
